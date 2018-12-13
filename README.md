@@ -39,7 +39,7 @@ const { address:address2 } = bitcoin.payments.p2pkh({ pubkey: bob.publicKey, net
 
 
 
-#####单个哈希交易。
+##### 单个哈希交易。
 ```
 const transfer1 = async () => {
 
@@ -81,7 +81,7 @@ transfer1();
 - 以下是一个区块浏览器的链接，可以查询到索要的记录
 https://api.blockcypher.com/v1/btc/test3/addrs/miAMpCdoM3SuRMRoEVHp8smFdDAz29WA9g
 
-#####多笔交易，自动合并。
+##### 多笔交易，自动合并。
 ```
 const transfer2 = async () => {
   const url = 'https://api.blockcypher.com/v1/btc/test3/addrs/';
