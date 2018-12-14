@@ -108,7 +108,7 @@ const transfer2 = async () => {
   txb.addOutput('mmH6e8tfLyvrrnFF3o1scaNsPXShGY89rb', 2000000);
 
   // 设置找零地址，如果忘记了，就会丢失所有BTC ！！！！！！！！
-  // 如果不预留手续费，则默认为0.03
+  // 如果不预留手续费，交易可能会不被打包
   txb.addOutput('miAMpCdoM3SuRMRoEVHp8smFdDAz29WA9g',balance - 2000000);
   
   // 批量签名，根据索引即可
