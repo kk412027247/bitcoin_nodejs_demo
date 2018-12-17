@@ -34,7 +34,7 @@ const transfer1 = async () => {
   txb.setVersion(1);
   // 在这个交易中， bob在第0个位置，上图所示
   txb.addInput('5799a647d6b89a9f73122d75faee6f5a0210bd3cb22c48a70d35eac33ce5d426', 0);
-  
+
   // 这里把btc转给 alice 的地址，金额是0.02 但是要*100000000, 也就是2000000,
   // 剩余的金额没有设置招零地址接收，则被视为手续费，被区块网络收取
   // 每一笔交易只有已花费和未花费两种状态，不存在消费一部分的状态，
@@ -89,9 +89,11 @@ const transfer2 = async () => {
   txb.addOutput('mmH6e8tfLyvrrnFF3o1scaNsPXShGY89rb', 2000000);
 
   // 设置找零地址，如果忘记了，就会丢失所有BTC ！！！！！！！！
-  // 如果不预留手续费，则默认为0.03
-  txb.addOutput('miAMpCdoM3SuRMRoEVHp8smFdDAz29WA9g',balance - 2000000);
-  
+  // 如果不预留手续费，交易可能不会被打包。
+  // 手续费计算 in * 180 + out * 34 + 10 plus or minus in ,
+  const fee = unspentList.length * 180 + 2 * 34 + 10 - unspentList.length;
+  txb.addOutput('miAMpCdoM3SuRMRoEVHp8smFdDAz29WA9g',balance - 2000000 - fee);
+
   // 批量签名，根据索引即可
   unspentList.forEach((item,index)=>{txb.sign(index, bob)});
 
@@ -112,4 +114,4 @@ const transfer2 = async () => {
 
 };
 
-// transfer2();
+transfer2();
