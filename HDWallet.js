@@ -1,22 +1,45 @@
-const bitcoin = require('bitcoinjs-lib');
 const bip39 = require('bip39');
-const HDKey = require('bip32');
+const bip32 = require('bip32');
+const wif = require('wif');
+const ecc = require('eosjs-ecc');
+const ethers = require('ethers');
+let provider = ethers.getDefaultProvider('rinkeby');
+const bitcoin = require('bitcoinjs-lib');
 
-const mnemonic = bip39.generateMnemonic();
-console.log(mnemonic);
+// 生成助记词
+// const mnemonic = bip39.generateMnemonic();
+const mnemonic = 'wagon avocado fee armed clever glory satoshi horror one goat sample trim';
 
-const seed = bip39.mnemonicToSeed( "muscle skate dawn remember pumpkin foil vacuum such brass grass bullet shoulder" ).toString( 'hex' );
+// EOS
+const seed = bip39.mnemonicToSeed(mnemonic);
+const node = bip32.fromSeed(seed);
 
-const root = HDKey.fromSeed(new Buffer(seed, 'hex'));
+const eosPath = "m/44'/194'/0'/0/0";
+const child = node.derivePath(eosPath);
+const EOSPrivateKey = wif.encode(128, child.privateKey, false);
+const EOSPublicKey = ecc.privateToPublic(EOSPrivateKey);
+console.log(EOSPublicKey);
+// console.log(EOSPrivateKey);
 
-const path = "m/44'/0'/0'/0/0";
 
-const derived = root.derivePath(path);
+// ETH
 
-const publicKey = derived.publicKey.toString('hex');
+const _wallet1 = ethers.Wallet.fromMnemonic(mnemonic);
+const ETHWallet = _wallet1.connect(provider);
+console.log(ETHWallet.signingKey.address);
 
-const { address } = bitcoin.payments.p2pkh({ pubkey: derived.publicKey });
+// BTC
 
-const privKey = bitcoin.ECPair.fromPrivateKey(derived.privateKey).toWIF();
+const btcNetwork = bitcoin.networks.testnet;
 
-console.log(publicKey, address, privKey);
+const BTCSeed = bip39.mnemonicToSeed(mnemonic);
+const BTCNode = bip32.fromSeed(BTCSeed, btcNetwork);
+const BTCPath = "m/44'/0'/0'/0/0";
+const BTCChild = BTCNode.derivePath(BTCPath);
+const BTCPrivateKey = BTCChild.toWIF();
+const BTCKeyPair = bitcoin.ECPair.fromWIF(BTCPrivateKey, btcNetwork);
+const { address } = bitcoin.payments.p2pkh({ pubkey: BTCKeyPair.publicKey, network: btcNetwork});
+console.log(address);
+
+
+
