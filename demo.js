@@ -64,9 +64,10 @@ const transfer1 = async () => {
 // 转账的时候需要手动寻找每一笔未花费记录实在太费时，所以需要一个辅助节点来提取未来花费的记录
 // https://api.blockcypher.com/v1/btc/test3/addrs/miAMpCdoM3SuRMRoEVHp8smFdDAz29WA9g
 
-const transfer2 = async () => {
+const transfer2 = async (receiver, amount) => {
   const url = 'https://api.blockcypher.com/v1/btc/test3/addrs/';
-  const res = await fetch(url+address2);
+  const myAddress = 'miAMpCdoM3SuRMRoEVHp8smFdDAz29WA9g';
+  const res = await fetch(url+myAddress);
   const json = await res.json();
   const balance = json.balance;
   // console.log(balance/100000000);
@@ -86,13 +87,13 @@ const transfer2 = async () => {
   unspentList.forEach(item=>txb.addInput(item.tx_hash, item.tx_output_n));
 
   // 转出账户
-  txb.addOutput('mmH6e8tfLyvrrnFF3o1scaNsPXShGY89rb', 2000000);
+  txb.addOutput(receiver, amount*100000000);
 
   // 设置找零地址，如果忘记了，就会丢失所有BTC ！！！！！！！！
   // 如果不预留手续费，交易可能不会被打包。
   // 手续费计算 in * 180 + out * 34 + 10 plus or minus in ,
   const fee = unspentList.length * 180 + 2 * 34 + 10 - unspentList.length;
-  txb.addOutput('miAMpCdoM3SuRMRoEVHp8smFdDAz29WA9g',balance - 2000000 - fee);
+  txb.addOutput(myAddress, balance - amount*100000000 - fee);
 
   // 批量签名，根据索引即可
   unspentList.forEach((item,index)=>{txb.sign(index, bob)});
@@ -114,4 +115,4 @@ const transfer2 = async () => {
 
 };
 
-transfer2();
+transfer2('mmH6e8tfLyvrrnFF3o1scaNsPXShGY89rb', 0.0001);
